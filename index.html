@@ -39,9 +39,11 @@
   </div>
 
   <script>
-    const grid = document.getElementById("seating-grid");
+     const grid = document.getElementById("seating-grid");
+    const layoutWrapper = document.getElementById("layout-wrapper");
+    
     const students = [
-        { "number": 1, "name": "相坂美怜", "kana": "アイサカ ミサト" },
+      { "number": 1, "name": "相坂美怜", "kana": "アイサカ ミサト" },
       { "number": 2, "name": "浅川優希", "kana": "アサカワ ユウキ" },
       { "number": 3, "name": "市川右馨", "kana": "イチカワ ウキョウ" },
       { "number": 4, "name": "江口結唯", "kana": "エグチ ユイ" },
@@ -76,98 +78,147 @@
       { "number": 33, "name": "松本瑠唯", "kana": "マツモト ルイ" },
       { "number": 34, "name": "横川遥城", "kana": "ヨコカワ ハルキ" }
     ];
-
-    const layout=[5,6,6,6,6,5], maxRows=Math.max(...layout);
-    for(let row=0;row<maxRows;row++){
-      for(let col=0;col<layout.length;col++){
-        if(row<layout[col]){
-          const seat=document.createElement("div"); seat.className="seat";
-          const numberInput=document.createElement("input");
-          numberInput.type="text"; numberInput.className="number-input"; numberInput.placeholder="#"+(row*layout.length+col+1); numberInput.readOnly=true;
-          const nameDisplay=document.createElement("div"); nameDisplay.className="name-display";
-          const nameLine=document.createElement("div"); nameLine.className="name";
-          const kanaLine=document.createElement("div"); kanaLine.className="kana";
-          nameDisplay.append(nameLine,kanaLine);
-          seat.append(numberInput,nameDisplay);
+    
+    const layout = [5, 6, 6, 6, 6, 5];
+    const maxRows = Math.max(...layout);
+    
+    for (let row = 0; row < maxRows; row++) {
+      for (let col = 0; col < layout.length; col++) {
+        if (row < layout[col]) {
+          const seat = document.createElement("div");
+          seat.className = "seat";
+    
+          const numberInput = document.createElement("input");
+          numberInput.type = "text";
+          numberInput.className = "number-input";
+          numberInput.placeholder = "#";
+    
+          const nameDisplay = document.createElement("div");
+          nameDisplay.className = "name-display";
+          const nameLine = document.createElement("div");
+          nameLine.className = "name";
+          const kanaLine = document.createElement("div");
+          kanaLine.className = "kana";
+    
+          nameDisplay.appendChild(nameLine);
+          nameDisplay.appendChild(kanaLine);
+    
+          numberInput.addEventListener("input", () => {
+            updateDisplay(numberInput, row * layout.length + col);
+          });
+    
+          seat.appendChild(numberInput);
+          seat.appendChild(nameDisplay);
           grid.appendChild(seat);
         } else {
-          const empty=document.createElement("div"); empty.className="seat"; empty.style.visibility="hidden";
+          const empty = document.createElement("div");
+          empty.className = "seat";
+          empty.style.visibility = "hidden";
           grid.appendChild(empty);
         }
       }
     }
-
-    const seats=Array.from(document.querySelectorAll(".seat input.number-input"));
-    const nameLines=Array.from(document.querySelectorAll(".seat .name"));
-    const kanaLines=Array.from(document.querySelectorAll(".seat .kana"));
-    let originalAssignments=[];
-
-    function saveOriginalSeats() {
-      originalAssignments = seats.map(i => i.value);
+    
+    const seats = document.querySelectorAll(".seat input.number-input");
+    let originalAssignments = [];
+    
+    function updateDisplay(input, index) {
+      const val = input.value;
+      const student = students.find(s => s.number === parseInt(val));
+      const nameLine = input.nextElementSibling.querySelector(".name");
+      const kanaLine = input.nextElementSibling.querySelector(".kana");
+    
+      if (val === "") {
+        // うっすら座席番号表示
+        nameLine.textContent = "";
+        kanaLine.textContent = "";
+        input.placeholder = (index + 1).toString();
+      } else if (student) {
+        nameLine.textContent = student.name;
+        kanaLine.textContent = student.kana;
+        input.placeholder = "";
+      } else {
+        nameLine.textContent = "";
+        kanaLine.textContent = "";
+        input.placeholder = "";
+      }
     }
+    
+    function saveOriginalSeats() {
+      originalAssignments = Array.from(seats).map(input => input.value);
+    }
+    
     function restoreOriginalSeats() {
-      seats.forEach((i, idx) => {
-        i.value = originalAssignments[idx] || "";
-        updateDisplay(i, idx);
+      seats.forEach((input, index) => {
+        input.value = originalAssignments[index] || "";
+        updateDisplay(input, index);
       });
     }
-
+    
     function saveSeatAssignment() {
-      const arr = seats.map(i=>i.value);
-      localStorage.setItem("savedSeatAssignment", JSON.stringify(arr));
+      const assignment = Array.from(seats).map(input => input.value);
+      localStorage.setItem("savedSeatAssignment", JSON.stringify(assignment));
       alert("座席の割り当てを保存しました。");
     }
-
+    
     function loadSeatAssignment() {
-      const saved=JSON.parse(localStorage.getItem("savedSeatAssignment")||"[]");
-      if(saved.length){
-        seats.forEach((i,idx)=>{
-          i.value=saved[idx]||"";
-          updateDisplay(i,idx);
+      const saved = JSON.parse(localStorage.getItem("savedSeatAssignment") || "[]");
+      if (saved.length > 0) {
+        seats.forEach((input, index) => {
+          input.value = saved[index] || "";
+          updateDisplay(input, index);
         });
       }
     }
-
-    function updateDisplay(input, idx) {
-      const n=parseInt(input.value);
-      const s=students.find(x=>x.number===n);
-      if(s){
-        nameLines[idx].textContent=s.name; kanaLines[idx].textContent=s.kana;
-        input.placeholder="";
-      } else {
-        nameLines[idx].textContent=""; kanaLines[idx].textContent="";
-        input.placeholder="#"+(idx+1);
-      }
+    
+    function rotateLayout() {
+      document.body.classList.toggle("rotated");
     }
-
+    
+    // 固定席反映（子ページからの固定設定読み込み）
+    function applyFixedSeats() {
+      const fixed = JSON.parse(localStorage.getItem("childFixedSeats") || "{}");
+      seats.forEach((input, index) => {
+        if (fixed.hasOwnProperty(index)) {
+          input.value = fixed[index];
+          updateDisplay(input, index);
+        }
+      });
+    }
+    
+    // ランダム割り当て（連続で一人ずつルーレット演出あり）
     async function assignRandomSeatsSequentially() {
       saveOriginalSeats();
-      const fixed=JSON.parse(localStorage.getItem("childFixedSeats")||"{}");
-      const pool=students.map(s=>s.number).filter(n=>!Object.values(fixed).includes(n));
-      for(let i=0;i<seats.length;i++){
-        seats[i].placeholder="…";
-        nameLines[i].textContent=""; kanaLines[i].textContent="";
+    
+      const fixed = JSON.parse(localStorage.getItem("childFixedSeats") || "{}");
+      const assignedNumbers = new Set(Object.values(fixed));
+      let pool = students.map(s => s.number).filter(n => !assignedNumbers.has(n));
+    
+      for (let i = 0; i < seats.length; i++) {
+        seats[i].value = "";
+        updateDisplay(seats[i], i);
       }
-      await new Promise(r=>setTimeout(r,500));
-      // 一人ずつドキドキ演出
-      for(let i=0;i<seats.length;i++){
-        let choices=pool.slice();
-        for(let f=0;f<20;f++){
-          const temp=choices[Math.floor(Math.random()*choices.length)];
-          seats[i].value=temp; updateDisplay(seats[i],i);
-          await new Promise(r=>setTimeout(r,50));
+    
+      await new Promise(r => setTimeout(r, 500));
+    
+      for (let i = 0; i < seats.length; i++) {
+        if (fixed.hasOwnProperty(i)) {
+          seats[i].value = fixed[i];
+          updateDisplay(seats[i], i);
+        } else {
+          for (let f = 0; f < 20; f++) {
+            const temp = pool[Math.floor(Math.random() * pool.length)];
+            seats[i].value = temp;
+            updateDisplay(seats[i], i);
+            await new Promise(r => setTimeout(r, 50));
+          }
+          const finalNum = seats[i].value;
+          updateDisplay(seats[i], i);
+          pool = pool.filter(n => n !== finalNum);
         }
-        if(fixed.hasOwnProperty(i)){
-          seats[i].value=fixed[i];
-        }
-        updateDisplay(seats[i],i);
-        if(!fixed.hasOwnProperty(i)){
-          pool.splice(pool.indexOf(seats[i].value),1);
-        }
-        await new Promise(r=>setTimeout(r,200));
+        await new Promise(r => setTimeout(r, 200));
       }
     }
-
     function rotateLayout() {
       document.body.classList.toggle("rotated");
     }
