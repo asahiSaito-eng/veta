@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>固定席設定</title></head>
+<body>
+  <h1>固定席設定</h1>
+  <p>座席番号（1〜34）と生徒番号（1〜34）をCSV形式で入力し、「保存」してください。</p>
+  <textarea id="csvArea" rows="10" cols="30" placeholder="1,5&#10;3,12&#10;..."></textarea><br>
+  <button onclick="saveFixed()">保存</button>
+  <button onclick="clearFixed()">全解除</button>
+
+  <script>
+    function saveFixed(){
+      const text=document.getElementById("csvArea").value;
+      const obj={};
+      text.split("\n").forEach(line=>{
+        const [seat, num]=line.trim().split(",");
+        const i=parseInt(seat)-1;
+        if(!isNaN(i)&&!isNaN(num)) obj[i]=parseInt(num);
+      });
+      localStorage.setItem("childFixedSeats", JSON.stringify(obj));
+      alert("固定席情報を保存しました。");
+    }
+    function clearFixed(){
+      localStorage.removeItem("childFixedSeats");
+      document.getElementById("csvArea").value="";
+      alert("固定席情報をクリアしました。");
+    }
+    window.onload = () => {
+      try{
+        const obj=JSON.parse(localStorage.getItem("childFixedSeats")||"{}");
+        const lines=Object.entries(obj).map(([i,n])=>`${parseInt(i)+1},${n}`);
+        document.getElementById("csvArea").value=lines.join("\n");
+      }catch{}
+    };
+  </script>
+</body>
+</html>
