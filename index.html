@@ -38,11 +38,7 @@
     <button onclick="window.open('fixed.html', '_blank')">###</button>
   </div>
 
-<<<<<<< HEAD
 <script>
-=======
-  <script>
->>>>>>> 03097755c97027ea2c1e573c47df57d9bb662689
 const grid = document.getElementById("seating-grid");
 const layoutWrapper = document.getElementById("layout-wrapper");
 
@@ -86,21 +82,11 @@ const students = [
 const layout = [5, 6, 6, 6, 6, 5];
 const maxRows = Math.max(...layout);
 
-<<<<<<< HEAD
 for (let row = 0; row < maxRows; row++) {
   for (let col = 0; col < layout.length; col++) {
     const gridCell = document.createElement("div");
     if (row < layout[col]) {
       gridCell.className = "seat";
-=======
-// 座席生成
-for (let row = 0; row < maxRows; row++) {
-  for (let col = 0; col < layout.length; col++) {
-    if (row < layout[col]) {
-      const seat = document.createElement("div");
-      seat.className = "seat";
-
->>>>>>> 03097755c97027ea2c1e573c47df57d9bb662689
       const numberInput = document.createElement("input");
       numberInput.type = "text";
       numberInput.className = "number-input";
@@ -112,7 +98,6 @@ for (let row = 0; row < maxRows; row++) {
       nameLine.className = "name";
       const kanaLine = document.createElement("div");
       kanaLine.className = "kana";
-<<<<<<< HEAD
       nameDisplay.append(nameLine, kanaLine);
       gridCell.append(numberInput, nameDisplay);
     } else {
@@ -120,20 +105,6 @@ for (let row = 0; row < maxRows; row++) {
       gridCell.style.visibility = "hidden";
     }
     grid.appendChild(gridCell);
-=======
-
-      nameDisplay.appendChild(nameLine);
-      nameDisplay.appendChild(kanaLine);
-      seat.appendChild(numberInput);
-      seat.appendChild(nameDisplay);
-      grid.appendChild(seat);
-    } else {
-      const empty = document.createElement("div");
-      empty.className = "seat";
-      empty.style.visibility = "hidden";
-      grid.appendChild(empty);
-    }
->>>>>>> 03097755c97027ea2c1e573c47df57d9bb662689
   }
 }
 
@@ -206,15 +177,9 @@ function shuffleArray(array) {
 
 async function assignRandomSeatsSequentially() {
   const fixedSeats = getFixedSeats();
-<<<<<<< HEAD
   const assignedNumbers = new Set();
   const allNumbers = students.map(s => s.number);
   let availableNumbers = [...allNumbers];
-=======
-  const assignedNumbers = new Set(Object.values(fixedSeats));
-  const allNumbers = students.map(s => s.number);
-  let availableNumbers = allNumbers.filter(n => !assignedNumbers.has(n));
->>>>>>> 03097755c97027ea2c1e573c47df57d9bb662689
 
   seats.forEach((input, i) => {
     input.value = "";
@@ -225,7 +190,6 @@ async function assignRandomSeatsSequentially() {
 
   for (let i = 0; i < seats.length; i++) {
     if (fixedSeats.hasOwnProperty(i)) {
-<<<<<<< HEAD
       const fixedNumber = fixedSeats[i];
       await flashFinalNumber(seats[i], fixedNumber);
       assignedNumbers.add(fixedNumber);
@@ -248,26 +212,11 @@ async function assignRandomSeatsSequentially() {
         availableNumbers = availableNumbers.filter(n => n !== finalNum);
         updateDisplay(seats[i], i);
       }
-=======
-      seats[i].value = fixedSeats[i];
-      updateDisplay(seats[i], i);
-    } else {
-      for (let j = 0; j < 15; j++) {
-        const temp = availableNumbers[Math.floor(Math.random() * availableNumbers.length)];
-        seats[i].value = temp;
-        updateDisplay(seats[i], i);
-        await new Promise(r => setTimeout(r, 60));
-      }
-      const finalNum = parseInt(seats[i].value);
-      availableNumbers = availableNumbers.filter(n => n !== finalNum);
-      updateDisplay(seats[i], i);
->>>>>>> 03097755c97027ea2c1e573c47df57d9bb662689
     }
     await new Promise(r => setTimeout(r, 300));
   }
 }
 
-<<<<<<< HEAD
 async function flashFinalNumber(input, finalNumber) {
   const flashCount = 12;
   for (let i = 0; i < flashCount; i++) {
@@ -295,8 +244,6 @@ async function flashLastThree(input, options) {
   return finalNum;
 }
 
-=======
->>>>>>> 03097755c97027ea2c1e573c47df57d9bb662689
 function rotateLayout() {
   document.body.classList.toggle("rotated");
 }
@@ -307,9 +254,5 @@ window.addEventListener("DOMContentLoaded", () => {
 </script>
 
 
-<<<<<<< HEAD
-
-=======
->>>>>>> 03097755c97027ea2c1e573c47df57d9bb662689
 </body>
 </html>
