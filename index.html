@@ -38,7 +38,7 @@
     <button onclick="window.open('fixed.html', '_blank')">###</button>
   </div>
 
-  <script>
+<script>
 const grid = document.getElementById("seating-grid");
 const layoutWrapper = document.getElementById("layout-wrapper");
 
@@ -82,13 +82,11 @@ const students = [
 const layout = [5, 6, 6, 6, 6, 5];
 const maxRows = Math.max(...layout);
 
-// 座席生成
 for (let row = 0; row < maxRows; row++) {
   for (let col = 0; col < layout.length; col++) {
+    const gridCell = document.createElement("div");
     if (row < layout[col]) {
-      const seat = document.createElement("div");
-      seat.className = "seat";
-
+      gridCell.className = "seat";
       const numberInput = document.createElement("input");
       numberInput.type = "text";
       numberInput.className = "number-input";
@@ -100,18 +98,13 @@ for (let row = 0; row < maxRows; row++) {
       nameLine.className = "name";
       const kanaLine = document.createElement("div");
       kanaLine.className = "kana";
-
-      nameDisplay.appendChild(nameLine);
-      nameDisplay.appendChild(kanaLine);
-      seat.appendChild(numberInput);
-      seat.appendChild(nameDisplay);
-      grid.appendChild(seat);
+      nameDisplay.append(nameLine, kanaLine);
+      gridCell.append(numberInput, nameDisplay);
     } else {
-      const empty = document.createElement("div");
-      empty.className = "seat";
-      empty.style.visibility = "hidden";
-      grid.appendChild(empty);
+      gridCell.className = "seat";
+      gridCell.style.visibility = "hidden";
     }
+    grid.appendChild(gridCell);
   }
 }
 
@@ -182,12 +175,11 @@ function shuffleArray(array) {
   return array;
 }
 
-
- async function assignRandomSeatsSequentially() {
+async function assignRandomSeatsSequentially() {
   const fixedSeats = getFixedSeats();
-  const assignedNumbers = new Set(Object.values(fixedSeats));
+  const assignedNumbers = new Set();
   const allNumbers = students.map(s => s.number);
-  let availableNumbers = allNumbers.filter(n => !assignedNumbers.has(n));
+  let availableNumbers = [...allNumbers];
 
   seats.forEach((input, i) => {
     input.value = "";
@@ -197,36 +189,44 @@ function shuffleArray(array) {
   await new Promise(r => setTimeout(r, 300));
 
   for (let i = 0; i < seats.length; i++) {
-    let currentFlash = [];
-
-    // 残り3人以下の場合は特別な演出に切り替え
-    if (availableNumbers.length <= 3 && !fixedSeats.hasOwnProperty(i)) {
-      const finalNum = await flashLastThree(seats[i], availableNumbers);
-      seats[i].value = finalNum;
-      updateDisplay(seats[i], i);
-      availableNumbers = availableNumbers.filter(n => n !== finalNum);
+    if (fixedSeats.hasOwnProperty(i)) {
+      const fixedNumber = fixedSeats[i];
+      await flashFinalNumber(seats[i], fixedNumber);
+      assignedNumbers.add(fixedNumber);
+      availableNumbers = availableNumbers.filter(n => n !== fixedNumber);
     } else {
-      // 通常のフラッシュ演出（固定席含む）
-      for (let j = 0; j < 15; j++) {
-        const temp = fixedSeats.hasOwnProperty(i)
-          ? fixedSeats[i]
-          : availableNumbers[Math.floor(Math.random() * availableNumbers.length)];
-        seats[i].value = temp;
-        updateDisplay(seats[i], i);
-        await new Promise(r => setTimeout(r, 60));
-      }
-
-      if (fixedSeats.hasOwnProperty(i)) {
-        seats[i].value = fixedSeats[i]; // 確定値に戻す
-      } else {
-        const finalNum = parseInt(seats[i].value);
+      const remaining = availableNumbers.filter(n => !assignedNumbers.has(n));
+      if (remaining.length <= 3) {
+        const finalNum = await flashLastThree(seats[i], remaining);
+        assignedNumbers.add(finalNum);
         availableNumbers = availableNumbers.filter(n => n !== finalNum);
+      } else {
+        for (let j = 0; j < 15; j++) {
+          const temp = remaining[Math.floor(Math.random() * remaining.length)];
+          seats[i].value = temp;
+          updateDisplay(seats[i], i);
+          await new Promise(r => setTimeout(r, 60));
+        }
+        const finalNum = parseInt(seats[i].value);
+        assignedNumbers.add(finalNum);
+        availableNumbers = availableNumbers.filter(n => n !== finalNum);
+        updateDisplay(seats[i], i);
       }
-      updateDisplay(seats[i], i);
     }
-
     await new Promise(r => setTimeout(r, 300));
   }
+}
+
+async function flashFinalNumber(input, finalNumber) {
+  const flashCount = 12;
+  for (let i = 0; i < flashCount; i++) {
+    const fake = Math.floor(Math.random() * 34) + 1;
+    input.value = fake;
+    updateDisplay(input, Array.from(seats).indexOf(input));
+    await new Promise(r => setTimeout(r, 100));
+  }
+  input.value = finalNumber;
+  updateDisplay(input, Array.from(seats).indexOf(input));
 }
 
 async function flashLastThree(input, options) {
@@ -238,9 +238,11 @@ async function flashLastThree(input, options) {
     await new Promise(r => setTimeout(r, 200));
   }
   const finalIndex = Math.floor(Math.random() * options.length);
-  return options[finalIndex];
+  const finalNum = options[finalIndex];
+  input.value = finalNum;
+  updateDisplay(input, Array.from(seats).indexOf(input));
+  return finalNum;
 }
-
 
 function rotateLayout() {
   document.body.classList.toggle("rotated");
@@ -250,6 +252,7 @@ window.addEventListener("DOMContentLoaded", () => {
   loadSeatAssignment();
 });
 </script>
+
 
 
 </body>
