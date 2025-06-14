@@ -182,13 +182,13 @@ function shuffleArray(array) {
   return array;
 }
 
-async function assignRandomSeatsSequentially() {
+
+ async function assignRandomSeatsSequentially() {
   const fixedSeats = getFixedSeats();
   const assignedNumbers = new Set(Object.values(fixedSeats));
   const allNumbers = students.map(s => s.number);
   let availableNumbers = allNumbers.filter(n => !assignedNumbers.has(n));
 
-  // 初期化
   seats.forEach((input, i) => {
     input.value = "";
     updateDisplay(input, i);
@@ -197,30 +197,50 @@ async function assignRandomSeatsSequentially() {
   await new Promise(r => setTimeout(r, 300));
 
   for (let i = 0; i < seats.length; i++) {
-    if (fixedSeats.hasOwnProperty(i)) {
-      // 固定席がある場合は即設定
-      seats[i].value = fixedSeats[i];
+    let currentFlash = [];
+
+    // 残り3人以下の場合は特別な演出に切り替え
+    if (availableNumbers.length <= 3 && !fixedSeats.hasOwnProperty(i)) {
+      const finalNum = await flashLastThree(seats[i], availableNumbers);
+      seats[i].value = finalNum;
       updateDisplay(seats[i], i);
+      availableNumbers = availableNumbers.filter(n => n !== finalNum);
     } else {
-      // フラッシュアニメーション：全生徒からランダム表示
+      // 通常のフラッシュ演出（固定席含む）
       for (let j = 0; j < 15; j++) {
-        const temp = allNumbers[Math.floor(Math.random() * allNumbers.length)];
+        const temp = fixedSeats.hasOwnProperty(i)
+          ? fixedSeats[i]
+          : availableNumbers[Math.floor(Math.random() * availableNumbers.length)];
         seats[i].value = temp;
         updateDisplay(seats[i], i);
         await new Promise(r => setTimeout(r, 60));
       }
 
-      // 実際に割り当てる生徒は、未割り当ての中から
-      const selectedIndex = Math.floor(Math.random() * availableNumbers.length);
-      const selectedNumber = availableNumbers[selectedIndex];
-      seats[i].value = selectedNumber;
+      if (fixedSeats.hasOwnProperty(i)) {
+        seats[i].value = fixedSeats[i]; // 確定値に戻す
+      } else {
+        const finalNum = parseInt(seats[i].value);
+        availableNumbers = availableNumbers.filter(n => n !== finalNum);
+      }
       updateDisplay(seats[i], i);
-      availableNumbers.splice(selectedIndex, 1); // その生徒を取り除く
-
-      await new Promise(r => setTimeout(r, 300));
     }
+
+    await new Promise(r => setTimeout(r, 300));
   }
 }
+
+async function flashLastThree(input, options) {
+  const flashCount = 12;
+  for (let i = 0; i < flashCount; i++) {
+    const index = i % options.length;
+    input.value = options[index];
+    updateDisplay(input, Array.from(seats).indexOf(input));
+    await new Promise(r => setTimeout(r, 200));
+  }
+  const finalIndex = Math.floor(Math.random() * options.length);
+  return options[finalIndex];
+}
+
 
 function rotateLayout() {
   document.body.classList.toggle("rotated");
