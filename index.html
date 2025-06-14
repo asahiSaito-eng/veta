@@ -188,6 +188,7 @@ async function assignRandomSeatsSequentially() {
   const allNumbers = students.map(s => s.number);
   let availableNumbers = allNumbers.filter(n => !assignedNumbers.has(n));
 
+  // 初期化
   seats.forEach((input, i) => {
     input.value = "";
     updateDisplay(input, i);
@@ -197,20 +198,27 @@ async function assignRandomSeatsSequentially() {
 
   for (let i = 0; i < seats.length; i++) {
     if (fixedSeats.hasOwnProperty(i)) {
+      // 固定席がある場合は即設定
       seats[i].value = fixedSeats[i];
       updateDisplay(seats[i], i);
     } else {
+      // フラッシュアニメーション：全生徒からランダム表示
       for (let j = 0; j < 15; j++) {
-        const temp = availableNumbers[Math.floor(Math.random() * availableNumbers.length)];
+        const temp = allNumbers[Math.floor(Math.random() * allNumbers.length)];
         seats[i].value = temp;
         updateDisplay(seats[i], i);
         await new Promise(r => setTimeout(r, 60));
       }
-      const finalNum = parseInt(seats[i].value);
-      availableNumbers = availableNumbers.filter(n => n !== finalNum);
+
+      // 実際に割り当てる生徒は、未割り当ての中から
+      const selectedIndex = Math.floor(Math.random() * availableNumbers.length);
+      const selectedNumber = availableNumbers[selectedIndex];
+      seats[i].value = selectedNumber;
       updateDisplay(seats[i], i);
+      availableNumbers.splice(selectedIndex, 1); // その生徒を取り除く
+
+      await new Promise(r => setTimeout(r, 300));
     }
-    await new Promise(r => setTimeout(r, 300));
   }
 }
 
