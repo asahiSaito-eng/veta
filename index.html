@@ -24,7 +24,7 @@
   </style>
 </head>
 <body>
-  <h1>1-16座席表</h1>
+  <h1>学校の座席表</h1>
   <div class="layout-wrapper" id="layout-wrapper">
     <div class="grid-container" id="seating-grid"></div>
     <div class="blackboard">黒板</div>
@@ -35,7 +35,6 @@
     <button onclick="saveSeatAssignment()">固定割り当て保存</button>
     <button onclick="rotateLayout()">レイアウトを180度回転</button>
     <button onclick="window.print()">印刷 / PDF出力</button>
-    <button onclick="window.open('fixed.html', '_blank')">###</button>
   </div>
 
 <script>
@@ -43,40 +42,40 @@ const grid = document.getElementById("seating-grid");
 const layoutWrapper = document.getElementById("layout-wrapper");
 
 const students = [
-  { "number": 1, "name": "相坂美怜", "kana": "アイサカ ミサト" },
-  { "number": 2, "name": "浅川優希", "kana": "アサカワ ユウキ" },
-  { "number": 3, "name": "市川右馨", "kana": "イチカワ ウキョウ" },
-  { "number": 4, "name": "江口結唯", "kana": "エグチ ユイ" },
-  { "number": 5, "name": "奥田千尋", "kana": "オクダ チヒロ" },
-  { "number": 6, "name": "奥野尚", "kana": "オクノ ナオ" },
-  { "number": 7, "name": "尾澤侑真", "kana": "オザワ ユウマ" },
-  { "number": 8, "name": "春日琉希", "kana": "カスガ リュウキ" },
-  { "number": 9, "name": "片倉仁美", "kana": "カタクラ ヒトミ" },
-  { "number": 10, "name": "加藤結愛", "kana": "カトウ ユメ" },
-  { "number": 11, "name": "金谷駿", "kana": "カナヤ シュン" },
-  { "number": 12, "name": "郷原緒", "kana": "ゴウハラ イトハ" },
-  { "number": 13, "name": "小林芽以", "kana": "コバヤシ メイ" },
-  { "number": 14, "name": "齋藤旭", "kana": "サイトウ アサヒ" },
-  { "number": 15, "name": "酒寄克典", "kana": "サカヨリ カツノリ" },
-  { "number": 16, "name": "佐川怜", "kana": "サガワ レイ" },
-  { "number": 17, "name": "櫻井陸翔", "kana": "サクライ リクト" },
-  { "number": 18, "name": "佐藤直紀", "kana": "サトウ ナオキ" },
-  { "number": 19, "name": "鈴木ほの", "kana": "スズキ ホノ" },
-  { "number": 20, "name": "関桃香", "kana": "セキ モモカ" },
-  { "number": 21, "name": "関根香穂", "kana": "セキネ カホ" },
-  { "number": 22, "name": "竹内捺姫", "kana": "タケウチ ナツキ" },
-  { "number": 23, "name": "塚谷柊斗", "kana": "ツカタニ シュウト" },
-  { "number": 24, "name": "土田龍虎", "kana": "ツチダ リュウト" },
-  { "number": 25, "name": "中泉佑悠", "kana": "ナカイズミ ユウリ" },
-  { "number": 26, "name": "中田桜輔", "kana": "ナカダ オウスケ" },
-  { "number": 27, "name": "中野来瑠美", "kana": "ナカノ クルミ" },
-  { "number": 28, "name": "仁科梨菜", "kana": "ニシナ リナ" },
-  { "number": 29, "name": "端山日々萌", "kana": "ハヤマ ヒビキ" },
-  { "number": 30, "name": "舩張蒼良", "kana": "フナバリ ソラ" },
-  { "number": 31, "name": "古谷優歩", "kana": "フルタニ ユウホ" },
-  { "number": 32, "name": "松島好希", "kana": "マツシマ コウキ" },
-  { "number": 33, "name": "松本瑠唯", "kana": "マツモト ルイ" },
-  { "number": 34, "name": "横川遥城", "kana": "ヨコカワ ハルキ" }
+  { "number": 1, "name": "茨城一郎", "kana": "イバラキ イチロウ" },
+  { "number": 2, "name": "茨城frogs", "kana": "イバラキ フロッグス" },
+  { "number": 3, "name": "常陸一郎", "kana": "ヒタチ イチロウ" },
+  { "number": 4, "name": "常陸太郎", "kana": "ヒタチ タロウ" },
+  { "number": 5, "name": "茨城次郎", "kana": "イバラキ ジロウ" },
+  { "number": 6, "name": "常陸frogs", "kana": "ヒタチ フロッグス" },
+  { "number": 7, "name": "茨城三郎", "kana": "イバラキ サブロウ" },
+  { "number": 8, "name": "常陸次郎", "kana": "ヒタチ ジロウ" },
+  { "number": 9, "name": "茨城花子", "kana": "イバラキ ハナコ" },
+  { "number": 10, "name": "常陸三郎", "kana": "ヒタチ サブロウ" },
+  { "number": 11, "name": "茨城ducks", "kana": "イバラキ ダックス" },
+  { "number": 12, "name": "常陸花子", "kana": "ヒタチ ハナコ" },
+  { "number": 13, "name": "茨城四郎", "kana": "イバラキ シロウ" },
+  { "number": 14, "name": "常陸ducks", "kana": "ヒタチ ダックス" },
+  { "number": 15, "name": "茨城cats", "kana": "イバラキ キャッツ" },
+  { "number": 16, "name": "常陸四郎", "kana": "ヒタチ シロウ" },
+  { "number": 17, "name": "茨城五郎", "kana": "イバラキ ゴロウ" },
+  { "number": 18, "name": "常陸cats", "kana": "ヒタチ キャッツ" },
+  { "number": 19, "name": "茨城dogs", "kana": "イバラキ ドッグス" },
+  { "number": 20, "name": "常陸五郎", "kana": "ヒタチ ゴロウ" },
+  { "number": 21, "name": "茨城六郎", "kana": "イバラキ ロクロウ" },
+  { "number": 22, "name": "常陸dogs", "kana": "ヒタチ ドッグス" },
+  { "number": 23, "name": "茨城bears", "kana": "イバラキ ベアーズ" },
+  { "number": 24, "name": "常陸六郎", "kana": "ヒタチ ロクロウ" },
+  { "number": 25, "name": "茨城七郎", "kana": "イバラキ シチロウ" },
+  { "number": 26, "name": "常陸bears", "kana": "ヒタチ ベアーズ" },
+  { "number": 27, "name": "茨城birds", "kana": "イバラキ バーズ" },
+  { "number": 28, "name": "常陸七郎", "kana": "ヒタチ シチロウ" },
+  { "number": 29, "name": "茨城八郎", "kana": "イバラキ ハチロウ" },
+  { "number": 30, "name": "常陸birds", "kana": "ヒタチ バーズ" },
+  { "number": 31, "name": "茨城wolves", "kana": "イバラキ ウルブズ" },
+  { "number": 32, "name": "常陸八郎", "kana": "ヒタチ ハチロウ" },
+  { "number": 33, "name": "茨城九郎", "kana": "イバラキ クロウ" },
+  { "number": 34, "name": "常陸wolves", "kana": "ヒタチ ウルブズ" }
 ];
 
 const layout = [5, 6, 6, 6, 6, 5];
